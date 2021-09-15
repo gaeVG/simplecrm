@@ -1,10 +1,27 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { body, validationResult } = require('express-validator');
 
-const model = require("../schemas/users")
+const model = require("../schemas/users");
+const passwordValidator = require("password-validator")
 
+const checkUser = () => [
 
-const checkUser = async (request, response, next) => {
+	body("email").isString().trim(),
+	body("password").custom( (value) => {
+		const password = new passwordValidator()
+
+		password
+			.is().min(6).max(32)
+			.has().uppercase().has().lowercase()
+			.has().digits(1)
+			.has().not().spaces()
+
+		return password.validate(value)
+	})
+]
+
+const checkToken = async (request, response, next) => {
 
 	try {
 		const data = jwt.verify(request.cookies.jwt, process.env.JWT_HASH);
@@ -25,6 +42,17 @@ const connectUser = async (request, response) => {
 
 	const { email, password } = request.body;
 
+	if (!email || !password) {
+		
+		response.status(400).json(
+			{
+				message: "The email address or the password is missing"
+			}
+		);
+		
+		return
+	}
+	
 	const user = await model.findOne({ email });
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
@@ -58,7 +86,7 @@ const createUser = async (request, response) => {
 		const hashedPassword = await bcrypt.hash(password, 12);
 
 		await model.create({ email : email, password: hashedPassword });
-		console.log("création")
+		
 	} catch (error) {
 		
 		if (error == "number") {
@@ -95,7 +123,7 @@ const getUser = async (request, response) => {
 
 
 module.exports ={
-	checkUser,
+	checkToken,
 	connectUser,
     createUser,
     getUser
