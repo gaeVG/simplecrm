@@ -1,10 +1,11 @@
-const db = require("mongoose")
+const db = require("mongoose");
 
 const schema = db.Schema(
 	{
 		userId: {
 			type: db.ObjectId,
-			require: true
+			require: true,
+			ref: "User"
 		},
 		name: {
 			type: String,
@@ -25,7 +26,7 @@ const schema = db.Schema(
 	}
 );
 
-const Contact = db.model("Contacts", schema);
+const model = db.model("Contacts", schema);
 
 
-module.exports = Contact
+module.exports = model;

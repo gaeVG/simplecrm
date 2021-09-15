@@ -13,6 +13,6 @@ const schema = db.Schema(
 	}
 );
 
-const User = db.model("User", schema);
+const model = db.model("User", schema);
 
-module.exports = User
+module.exports = model
