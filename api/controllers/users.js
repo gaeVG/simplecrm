@@ -99,9 +99,7 @@ const createUser = async (request, response) => {
 	const { email, password } = request.body;
 
 	try {
-
-		if (!(/\d/.test(password))) throw "number"
-
+		
 		const hashedPassword = await bcrypt.hash(password, 12);
 
 		await Users.create({ email : email, password: hashedPassword, group: "user" });
