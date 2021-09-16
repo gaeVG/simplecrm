@@ -31,7 +31,7 @@ const addContact = async (request, response) => {
 
     try {
 
-        model.create(
+        const result = await model.create(
             { 
                 userId: request.cookies.jwtData.id,
                 name: name,
@@ -40,6 +40,12 @@ const addContact = async (request, response) => {
                 category: category
             }
         );
+
+        response.json(
+            {
+                contact: result
+            }
+        )
     
     } catch (error) {
 
@@ -49,12 +55,6 @@ const addContact = async (request, response) => {
             }
         )
     }
-
-    response.json(
-        {
-            contact: request.body
-        }
-    )
 }
 const delContact = async (request, response) => {
 
@@ -67,9 +67,8 @@ const delContact = async (request, response) => {
         )
     }
 
-    console.log(request.body.name)
-    const result = await model.findOne(request.body)
-    console.log(result)
+    const result = await model.findOneAndDelete(request.body)
+
     if (!result) {
 
         return response.status(404).json(
@@ -81,7 +80,7 @@ const delContact = async (request, response) => {
 
     response.json(
         {
-            contact: "del contact"
+            contact: result
         }
     )
 }
