@@ -8,7 +8,7 @@ const loginRoutes = require("./routes/login");
 const logoutRoutes = require("./routes/logout")
 const registerRoutes = require("./routes/register");
 const contactsRoutes = require("./routes/contacts");
-
+const usersRoutes = require("./routes/users")
 
 app.use(express.json());
 app.use(cookieParser());
@@ -22,6 +22,7 @@ app.use("/register", registerRoutes);
 app.use("/login", loginRoutes);
 app.use("/logout", logoutRoutes)
 app.use("/contacts", contactsRoutes);
+app.use("/users", usersRoutes)
 
 app.listen(process.env.PORT, () => {
 	console.log(`Listening on port ${process.env.PORT}`);

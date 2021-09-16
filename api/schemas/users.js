@@ -10,6 +10,9 @@ const schema = db.Schema(
 		password: {
 			type: String,
 			require: true
+		},
+		group: {
+			type: String
 		}
 	}
 );

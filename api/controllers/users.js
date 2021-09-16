@@ -2,38 +2,28 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { body, validationResult } = require('express-validator');
 
-const model = require("../schemas/users");
-const passwordValidator = require("password-validator")
+const Users = require("../schemas/users");
+const Contacts = require("../schemas/contacts");
+const passwordValidator = require("password-validator");
+const { response } = require("express");
 
-const checkUser = () => [
 
-	body("email").isString().trim(),
-	body("password").custom( (value) => {
-		const password = new passwordValidator()
+const checkAdmin = async (request, response, next) => {
 
-		password
-			.is().min(6).max(32)
-			.has().uppercase().has().lowercase()
-			.has().digits(1)
-			.has().not().spaces()
+	const result = await Users.find({})
+	
+	const isAdmin =result.filter(user => user.id === request.cookies.jwtData.id && user.group === "admin")
 
-		return password.validate(value)
-	})
-]
-const validateUser = (request, response, next) => {
+	if (isAdmin.length === 0) {
 
-    const errors = validationResult(request)
+		return response.status(401).json(
+			{
+				message: "Not allowed"
+			}
+		)
+	}
 
-    if (!errors.isEmpty()) {
-
-        return response.status(422).json(
-            {
-                errors: errors.array()
-            }
-        )
-    }
-
-    next()
+	next()
 }
 const checkToken = async (request, response, next) => {
 
@@ -52,6 +42,21 @@ const checkToken = async (request, response, next) => {
         );
 	}
 }
+const checkUser = () => [
+
+	body("email").isString().trim(),
+	body("password").custom( (value) => {
+		const password = new passwordValidator()
+
+		password
+			.is().min(6).max(32)
+			.has().uppercase().has().lowercase()
+			.has().digits(1)
+			.has().not().spaces()
+
+		return password.validate(value)
+	})
+]
 const connectUser = async (request, response) => {
 
 	const { email, password } = request.body;
@@ -67,7 +72,7 @@ const connectUser = async (request, response) => {
 		return
 	}
 	
-	const user = await model.findOne({ email });
+	const user = await Users.findOne({ email });
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
 	if (!user || !isPasswordValid) {
@@ -99,7 +104,7 @@ const createUser = async (request, response) => {
 
 		const hashedPassword = await bcrypt.hash(password, 12);
 
-		await model.create({ email : email, password: hashedPassword, group: "user" });
+		await Users.create({ email : email, password: hashedPassword, group: "user" });
 		
 	} catch (error) {
 		
@@ -134,14 +139,70 @@ const deconnectUser = async (_, response) => {
 		}
 	)
 }
+const deleteUser = async (request, response) => {
 
+	const user = await Users.findOneAndDelete(request.body)
+
+	if (!user) {
+
+		return response.status(404).json(
+			{
+				message: "No user could be found"
+			}
+		)
+	}
+
+	const contacts = await Contacts.find({})
+
+	contacts.map(async contact => {
+
+		if (contact.userId == user.id) {
+
+			await Contacts.findByIdAndDelete(contact.id)
+		}
+	})
+
+	response.json(
+		{
+			user: user
+		}
+	)
+}
+const getUsers = async (request, response) => {
+
+	const result = await Users.find({})
+
+	response.json(
+		{
+			users: result
+		}
+	)
+}
+const validateUser = (request, response, next) => {
+
+    const errors = validationResult(request)
+
+    if (!errors.isEmpty()) {
+
+        return response.status(422).json(
+            {
+                errors: errors.array()
+            }
+        )
+    }
+
+    next()
+}
 
 
 module.exports ={
+	checkAdmin,
 	checkToken,
 	checkUser,
-	deconnectUser,
-	validateUser,
 	connectUser,
-    createUser
+    createUser,
+	deconnectUser,
+	deleteUser,
+	getUsers,
+	validateUser,
 }
