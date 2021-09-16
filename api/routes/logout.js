@@ -4,11 +4,7 @@ const router = express.Router();
 const controller = require("../controllers/users");
 
 
-router.post("/",
-    controller.checkUser(),
-    controller.validateUser,
-    controller.createUser
-);
+router.post("/", controller.deconnectUser);
 
 
 module.exports = router;

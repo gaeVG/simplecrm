@@ -20,7 +20,21 @@ const checkUser = () => [
 		return password.validate(value)
 	})
 ]
+const validateUser = (request, response, next) => {
 
+    const errors = validationResult(request)
+
+    if (!errors.isEmpty()) {
+
+        return response.status(422).json(
+            {
+                errors: errors.array()
+            }
+        )
+    }
+
+    next()
+}
 const checkToken = async (request, response, next) => {
 
 	try {
@@ -71,7 +85,7 @@ const connectUser = async (request, response) => {
 
 	response.json(
 		{
-			message: "Here is your cookie for subsequent requests, have fun :)",
+			message: "Authorized connection",
 		}
 	);
 }
@@ -85,7 +99,7 @@ const createUser = async (request, response) => {
 
 		const hashedPassword = await bcrypt.hash(password, 12);
 
-		await model.create({ email : email, password: hashedPassword });
+		await model.create({ email : email, password: hashedPassword, group: "user" });
 		
 	} catch (error) {
 		
@@ -110,21 +124,24 @@ const createUser = async (request, response) => {
 	    }
     );
 }
-const getUser = async (request, response) => {
+const deconnectUser = async (_, response) => {
 
-    console.log("Utilisateur qui fait la requête :", request.cookies.jwtData.id);
+	response.clearCookie("jwt")
 
-    response.json(
-        {
-            message: "You are authorized",
-        }
-    );
+	response.status(200).json(
+		{
+			message: "Déconnexion"
+		}
+	)
 }
+
 
 
 module.exports ={
 	checkToken,
+	checkUser,
+	deconnectUser,
+	validateUser,
 	connectUser,
-    createUser,
-    getUser
+    createUser
 }
