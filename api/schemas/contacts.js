@@ -13,6 +13,7 @@ const schema = db.Schema(
 		},
 		email: {
 			type: String,
+			unique: true,
 			require: true
 		},
 		description: {
