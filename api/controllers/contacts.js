@@ -66,6 +66,7 @@ const delContact = async (request, response) => {
             }
         )
     }
+
     console.log(request.body.name)
     const result = await model.findOne(request.body)
     console.log(result)
@@ -106,16 +107,59 @@ const getContacts = async (request, response) => {
             );
 
     } else {
+
+        if (Object.entries(request.query).length > 1) {
+
+            return response.status(400).json(
+                {
+                    message: "You can only send one request at a time"
+                }
+            )
+        }
+
         const result = await model.findOne(request.query).populate("userId");
 
-        console.log(result)
+        if (!result) {
+
+            return response.status(404).json(
+                {
+                    message: "No one could be found with this request"
+                }
+            )
+        }
+
+        response.status(200).json(
+            {
+                contact: result
+            }
+        )
     }
 }
-const updateContact = async (_, response) => {
+const updateContact = async (request, response) => {
+
+    if (!request.body.hasOwnProperty("email")) {
+
+        return response.status(400).json(
+            {
+                message: "The email address of the contact is necessary for its update"
+            }
+        )
+    }
+
+    const result = await model.findOneAndUpdate({ email : request.body.email }, request.body).populate("userId");
+
+    if (!result) {
+
+        return response.stats(404).json(
+            {
+                messsage: "The contact we are looking for cannot be found"
+            }
+        )
+    }
 
     response.json(
         {
-            contact: "update"
+            update: request.body
         }
     )
 }
