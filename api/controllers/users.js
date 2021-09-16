@@ -1,11 +1,10 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const passwordValidator = require("password-validator");
 const { body, validationResult } = require('express-validator');
 
 const Users = require("../schemas/users");
 const Contacts = require("../schemas/contacts");
-const passwordValidator = require("password-validator");
-const { response } = require("express");
 
 
 const checkAdmin = async (request, response, next) => {
@@ -88,7 +87,7 @@ const connectUser = async (request, response) => {
 
 	response.cookie("jwt", token, { httpOnly: true, secure: false });
 
-	response.json(
+	response.status(200).json(
 		{
 			message: "Authorized connection",
 		}
@@ -160,7 +159,7 @@ const deleteUser = async (request, response) => {
 		}
 	})
 
-	response.json(
+	response.status(200).json(
 		{
 			user: user
 		}
@@ -170,7 +169,7 @@ const getUsers = async (request, response) => {
 
 	const result = await Users.find({})
 
-	response.json(
+	response.status(200).json(
 		{
 			users: result
 		}

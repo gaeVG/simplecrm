@@ -1,4 +1,3 @@
-const db = require("mongoose");
 const { body, validationResult } = require('express-validator');
 
 const model = require("../schemas/contacts")
@@ -41,7 +40,7 @@ const addContact = async (request, response) => {
             }
         );
 
-        response.json(
+        response.status(200).json(
             {
                 contact: result
             }
@@ -78,7 +77,7 @@ const delContact = async (request, response) => {
         )
     }
 
-    response.json(
+    response.status(200).json(
         {
             contact: result
         }
@@ -98,7 +97,7 @@ const getContacts = async (request, response) => {
                 }
             )
         :
-            response.json(
+            response.status(200).json(
                 {
                     data: result,
                     nb: result.length
