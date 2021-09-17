@@ -1,15 +1,15 @@
 const db = require("mongoose")
 
-const schema = db.Schema(
+const schema = new db.Schema(
 	{
 		email: {
 			type: String,
 			unique: true,
-			required: true
+			required: true,
 		},
 		password: {
 			type: String,
-			require: true
+			required: true
 		},
 		group: {
 			type: String

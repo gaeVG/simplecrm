@@ -1,28 +1,28 @@
 const db = require("mongoose");
 
-const schema = db.Schema(
+const schema = new db.Schema(
 	{
 		userId: {
 			type: db.ObjectId,
-			require: true,
+			required: true,
 			ref: "User"
 		},
 		name: {
 			type: String,
-			require: true
+			required: true
 		},
 		email: {
 			type: String,
 			unique: true,
-			require: true
+			required: true
 		},
 		description: {
 			type: String,
-			require: true
+			required: true
 		},
 		category: {
 			type: Number,
-			require: true
+			required: true
 		}
 	}
 );
